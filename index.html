@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator Premium - By Fahmi</title>
+    <meta name="description" content="Generate beautiful QR codes with advanced features - colors, logos, and multiple formats">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --dark-bg: #0f0f23;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #b4b4c7;
+            --accent: #00d4ff;
+            --success: #4ade80;
+            --error: #f87171;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--primary-gradient);
+            opacity: 0.1;
+        }
+
+        .background-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="1" fill="white" opacity="0.1"/><circle cx="10" cy="50" r="1" fill="white" opacity="0.1"/><circle cx="90" cy="30" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            animation: drift 20s infinite linear;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100px, -100px); }
+        }
+
+        .floating-shapes {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--secondary-gradient);
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            top: 80%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+
+        .main-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.8s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .main-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 24px;
+            padding: 2px;
+            background: var(--primary-gradient);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: subtract;
+            opacity: 0.5;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.2); }
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: var(--accent);
+            color: var(--dark-bg);
+            font-size: 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-section {
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .color-input {
+            width: 100%;
+            height: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .color-input:hover {
+            transform: scale(1.05);
+            border-color: var(--accent);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .color-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .size-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, var(--accent) 0%, rgba(255, 255, 255, 0.3) 50%);
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+            border: 3px solid white;
+        }
+
+        .size-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6);
+        }
+
+        .size-slider::-webkit-slider-thumb:active {
+            transform: scale(1.1);
+        }
+
+        .size-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .size-slider::-moz-range-thumb:hover {
+            transform: scale(1.3);
+        }
+
+        .size-slider:focus {
+            outline: none;
+        }
+
+        .size-slider:focus::-webkit-slider-thumb {
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.3);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn.loading {
+            pointer-events: none;
+            background: linear-gradient(135deg, #666 0%, #999 100%);
+        }
+
+        .qr-result {
+            text-align: center;
+            margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .qr-result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .qr-display {
+            display: inline-block;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .qr-display:hover {
+            transform: scale(1.05);
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: var(--success);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 0.5rem;
+        }
+
+        .download-btn:hover {
+            background: #22c55e;
+            transform: translateY(-2px);
+        }
+
+        .about-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .about-btn:hover {
+            transform: scale(1.1) rotate(360deg);
+        }
+
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--success);
+            color: white;
+            border-radius: 8px;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .feature-list {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--dark-bg);
+            font-weight: bold;
+        }
+
+        .developer-intro {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            z-index: 2000;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            opacity: 0;
+        }
+
+        .developer-intro.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .developer-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            animation: pulse 2s ease-in-out infinite alternate;
+            border: 3px solid var(--accent);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .developer-name {
+            font-size: 2rem;
+            font-weight: bold;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            animation: slideInDown 0.8s ease-out 0.2s both;
+        }
+
+        .developer-title {
+            color: var(--accent);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            animation: slideInDown 0.8s ease-out 0.4s both;
+        }
+
+        .developer-bio {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            animation: slideInUp 0.8s ease-out 0.6s both;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-btn:hover {
+            background: var(--accent);
+            color: var(--dark-bg);
+            transform: translateY(-3px) scale(1.1);
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid var(--accent);
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: var(--accent); }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div id="overlay" class="overlay"></div>
+    
+    <div id="developerIntro" class="developer-intro">
+        <button class="close-btn" id="closeIntro">×</button>
+        <div class="developer-avatar">👨‍💻</div>
+        <h2 class="developer-name">Fahmi Nabeel</h2>
+        <p class="developer-title typewriter">Full Stack Developer & UI/UX Enthusiast</p>
+        <div class="developer-bio">
+            <p>🚀 Passionate developer with expertise in modern web technologies. Creating beautiful, functional, and user-friendly applications with attention to detail and performance.</p>
+            <p>💡 Specialized in React, Node.js, and modern CSS animations. Always exploring new technologies and design trends.</p>
+        </div>
+        
+        <div class="social-links">
+            <a href="#" class="social-btn" title="GitHub">⚡</a>
+            <a href="#" class="social-btn" title="LinkedIn">💼</a>
+            <a href="#" class="social-btn" title="Portfolio">🌐</a>
+            <a href="#" class="social-btn" title="Email">📧</a>
+        </div>
+        
+        <div style="color: var(--text-secondary); font-size: 0.9rem;">
+            "Code is poetry written in logic" ✨
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="header">
+            <h1 class="title">QR Generator</h1>
+            <p class="subtitle">Create beautiful QR codes instantly</p>
+            <span class="badge">Premium Edition</span>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="textInput" 
+                    class="input-field" 
+                    placeholder="Enter text, URL, or any data..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label class="control-label">Foreground Color</label>
+                    <input type="color" id="fgColor" class="color-input" value="#000000">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Background Color</label>
+                    <input type="color" id="bgColor" class="color-input" value="#ffffff">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Size: <span id="sizeValue">256</span>px</label>
+                    <input type="range" id="sizeSlider" class="size-slider" min="128" max="512" value="256">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Error Correction</label>
+                    <select id="errorCorrection" class="input-field" style="height: 50px; padding: 0 1rem;">
+                        <option value="L">Low</option>
+                        <option value="M" selected>Medium</option>
+                        <option value="Q">Quartile</option>
+                        <option value="H">High</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="generateBtn" class="generate-btn">
+                <span class="loading-spinner" id="loadingSpinner"></span>
+                Generate QR Code
+            </button>
+        </div>
+
+        <div id="qrResult" class="qr-result">
+            <div id="qrDisplay" class="qr-display"></div>
+            <div>
+                <a id="downloadPNG" class="download-btn" download="qrcode.png">PNG</a>
+                <a id="downloadSVG" class="download-btn" download="qrcode.svg">SVG</a>
+            </div>
+        </div>
+
+        <div class="feature-list">
+            <div class="feature">
+                <div class="feature-icon">✨</div>
+                <span>Customizable colors and sizes</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <span>Multiple download formats</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <span>Instant generation</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <span>Privacy focused - no data stored</span>
+            </div>
+        </div>
+    </div>
+
+    <button class="about-btn" id="aboutBtn" title="About Developer">👨‍💻</button>
+
+    <div id="notification" class="notification">
+        QR Code generated successfully! 🎉
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        class QRGenerator {
+            constructor() {
+                this.initElements();
+                this.bindEvents();
+                this.qrCode = null;
+                this.showIntroOnFirstVisit();
+            }
+
+            initElements() {
+                this.textInput = document.getElementById('textInput');
+                this.fgColor = document.getElementById('fgColor');
+                this.bgColor = document.getElementById('bgColor');
+                this.sizeSlider = document.getElementById('sizeSlider');
+                this.sizeValue = document.getElementById('sizeValue');
+                this.errorCorrection = document.getElementById('errorCorrection');
+                this.generateBtn = document.getElementById('generateBtn');
+                this.loadingSpinner = document.getElementById('loadingSpinner');
+                this.qrResult = document.getElementById('qrResult');
+                this.qrDisplay = document.getElementById('qrDisplay');
+                this.downloadPNG = document.getElementById('downloadPNG');
+                this.downloadSVG = document.getElementById('downloadSVG');
+                this.aboutBtn = document.getElementById('aboutBtn');
+                this.notification = document.getElementById('notification');
+                this.developerIntro = document.getElementById('developerIntro');
+                this.overlay = document.getElementById('overlay');
+                this.closeIntro = document.getElementById('closeIntro');
+            }
+
+            bindEvents() {
+                this.generateBtn.addEventListener('click', () => this.generateQR());
+                this.textInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.generateQR();
+                });
+                
+                // Size slider event with improved handling
+                this.sizeSlider.addEventListener('input', (e) => {
+                    console.log('Size changed:', e.target.value); // Debug log
+                    this.sizeValue.textContent = e.target.value;
+                    this.animateValueChange();
+                });
+                
+                this.aboutBtn.addEventListener('click', () => this.showDeveloperIntro());
+                this.closeIntro.addEventListener('click', () => this.hideDeveloperIntro());
+                this.overlay.addEventListener('click', () => this.hideDeveloperIntro());
+                
+                // Color input events with improved handling
+                this.fgColor.addEventListener('input', (e) => {
+                    console.log('Foreground color changed:', e.target.value); // Debug log
+                    this.animateColorChange(this.fgColor);
+                });
+                
+                this.bgColor.addEventListener('input', (e) => {
+                    console.log('Background color changed:', e.target.value); // Debug log
+                    this.animateColorChange(this.bgColor);
+                });
+                
+                // Additional change events for better compatibility
+                this.fgColor.addEventListener('change', (e) => {
+                    this.animateColorChange(this.fgColor);
+                });
+                
+                this.bgColor.addEventListener('change', (e) => {
+                    this.animateColorChange(this.bgColor);
+                });
+                
+                // Mouse events for better interaction feedback
+                this.sizeSlider.addEventListener('mousedown', () => {
+                    this.sizeSlider.style.transform = 'scale(1.02)';
+                });
+                
+                this.sizeSlider.addEventListener('mouseup', () => {
+                    this.sizeSlider.style.transform = 'scale(1)';
+                });
+            }
+
+            animateValueChange() {
+                this.sizeValue.style.transform = 'scale(1.3)';
+                this.sizeValue.style.color = 'var(--accent)';
+                this.sizeValue.style.textShadow = '0 0 10px var(--accent)';
+                setTimeout(() => {
+                    this.sizeValue.style.transform = 'scale(1)';
+                    this.sizeValue.style.color = 'var(--text-secondary)';
+                    this.sizeValue.style.textShadow = 'none';
+                }, 300);
+            }
+
+            animateColorChange(colorInput) {
+                colorInput.style.transform = 'scale(1.15) rotate(10deg)';
+                colorInput.style.boxShadow = '0 8px 25px rgba(0, 212, 255, 0.5)';
+                setTimeout(() => {
+                    colorInput.style.transform = 'scale(1.05) rotate(0deg)';
+                    colorInput.style.boxShadow = '0 4px 15px rgba(0, 212, 255, 0.3)';
+                }, 200);
+                setTimeout(() => {
+                    colorInput.style.transform = 'scale(1)';
+                }, 400);
+            }
+
+            showIntroOnFirstVisit() {
+                // Show intro after 1 second on first load
+                setTimeout(() => {
+                    this.showDeveloperIntro();
+                }, 1000);
+            }
+
+            showDeveloperIntro() {
+                this.overlay.classList.add('show');
+                setTimeout(() => {
+                    this.developerIntro.classList.add('show');
+                }, 100);
+            }
+
+            hideDeveloperIntro() {
+                this.developerIntro.classList.remove('show');
+                setTimeout(() => {
+                    this.overlay.classList.remove('show');
+                }, 300);
+            }
+
+            async generateQR() {
+                const text = this.textInput.value.trim();
+                if (!text) {
+                    this.showNotification('Please enter some text or URL!', 'error');
+                    this.textInput.focus();
+                    return;
+                }
+
+                this.setLoading(true);
+
+                try {
+                    // Clear previous QR code
+                    this.qrDisplay.innerHTML = '';
+                    this.qrResult.classList.remove('show');
+
+                    // Small delay for animation
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    const options = {
+                        text: text,
+                        width: parseInt(this.sizeSlider.value),
+                        height: parseInt(this.sizeSlider.value),
+                        colorDark: this.fgColor.value,
+                        colorLight: this.bgColor.value,
+                        correctLevel: QRCode.CorrectLevel[this.errorCorrection.value],
+                        margin: 4,
+                        qrBorderWidth: 1,
+                        logoBackgroundColor: '#ffffff'
+                    };
+
+                    this.qrCode = new QRCode(this.qrDisplay, options);
+
+                    // Wait for QR code to be generated
+                    setTimeout(() => {
+                        this.setupDownloads();
+                        this.qrResult.classList.add('show');
+                        this.showNotification('QR Code generated successfully! 🎉');
+                    }, 100);
+
+                } catch (error) {
+                    console.error('Error generating QR code:', error);
+                    this.showNotification('Error generating QR code!', 'error');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+
+            setupDownloads() {
+                const canvas = this.qrDisplay.querySelector('canvas');
+                const img = this.qrDisplay.querySelector('img');
+                
+                if (canvas) {
+                    // Setup PNG download
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            const url = URL.createObjectURL(blob);
+                            this.downloadPNG.href = url;
+                            this.downloadPNG.style.display = 'inline-block';
+                        }
+                    });
+
+                    // Setup SVG download (simplified version)
+                    const svgData = this.createSVGFromCanvas(canvas);
+                    const svgBlob = new Blob([svgData], { type: 'image/svg+xml' });
+                    const svgUrl = URL.createObjectURL(svgBlob);
+                    this.downloadSVG.href = svgUrl;
+                    this.downloadSVG.style.display = 'inline-block';
+                }
+            }
+
+            createSVGFromCanvas(canvas) {
+                const size = canvas.width;
+                const ctx = canvas.getContext('2d');
+                const imageData = ctx.getImageData(0, 0, size, size);
+                const data = imageData.data;
+                
+                let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
+                svg += `<rect width="${size}" height="${size}" fill="${this.bgColor.value}"/>`;
+                
+                const pixelSize = 1;
+                for (let y = 0; y < size; y += pixelSize) {
+                    for (let x = 0; x < size; x += pixelSize) {
+                        const i = (y * size + x) * 4;
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        
+                        if (r < 128 && g < 128 && b < 128) {
+                            svg += `<rect x="${x}" y="${y}" width="${pixelSize}" height="${pixelSize}" fill="${this.fgColor.value}"/>`;
+                        }
+                    }
+                }
+                
+                svg += '</svg>';
+                return svg;
+            }
+
+            setLoading(loading) {
+                this.generateBtn.classList.toggle('loading', loading);
+                this.loadingSpinner.style.display = loading ? 'inline-block' : 'none';
+                this.generateBtn.textContent = loading ? 'Generating...' : 'Generate QR Code';
+                if (loading) {
+                    this.generateBtn.prepend(this.loadingSpinner);
+                }
+            }
+
+            showNotification(message, type = 'success') {
+                this.notification.textContent = message;
+                this.notification.style.background = type === 'error' ? '#f87171' : '#4ade80';
+                this.notification.classList.add('show');
+                
+                setTimeout(() => {
+                    this.notification.classList.remove('show');
+                }, 3000);
+            }
+
+            showAbout() {
+                this.showDeveloperIntro();
+            }
+        }
+
+        // Test control functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const qrGen = new QRGenerator();
+            
+            // Debug: Test if controls are working
+            setTimeout(() => {
+                console.log('Testing controls...');
+                const sizeSlider = document.getElementById('sizeSlider');
+                const fgColor = document.getElementById('fgColor');
+                const bgColor = document.getElementById('bgColor');
+                
+                if (sizeSlider) {
+                    console.log('Size slider found, current value:', sizeSlider.value);
+                    sizeSlider.style.pointerEvents = 'auto';
+                    sizeSlider.style.position = 'relative';
+                    sizeSlider.style.zIndex = '10';
+                }
+                
+                if (fgColor && bgColor) {
+                    console.log('Color inputs found');
+                    fgColor.style.pointerEvents = 'auto';
+                    bgColor.style.pointerEvents = 'auto';
+                    fgColor.style.position = 'relative';
+                    bgColor.style.position = 'relative';
+                    fgColor.style.zIndex = '10';
+                    bgColor.style.zIndex = '10';
+                }
+            }, 500);
+        });
+
+        // Add some interactive effects
+        document.addEventListener('mousemove', (e) => {
+            const shapes = document.querySelectorAll('.shape');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            shapes.forEach((shape, index) => {
+                const speed = (index + 1) * 0.5;
+                const xMovement = (x - 0.5) * speed * 20;
+                const yMovement = (y - 0.5) * speed * 20;
+                
+                shape.style.transform = `translate(${xMovement}px, ${yMovement}px) translateY(${Math.sin(Date.now() * 0.001 + index) * 10}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
